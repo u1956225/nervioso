@@ -48,8 +48,8 @@ const GameScores = ({ players, gameId }) => {
 
     const updatedRankings = sortedPlayers.map((player, index) => {
       let points = 0;
-      if (index === 0) points = 3; // Ganador
-      else if (index === 1) points = 2; // Segundo lugar
+      if (index === 0) points = 5; // Ganador
+      else if (index === 1) points = 3; // Segundo lugar
       else if (index === 2) points = 1; // Tercer lugar
 
       // Bonificación por puntaje bajo
