@@ -12,21 +12,25 @@ const GameScores = ({ players, gameId }) => {
 
   const handleScoreChange = (index, value) => {
     const newScores = [...scores];
-    newScores[index] = parseInt(value, 10) || 0;
+    newScores[index] = value; // Permitir la entrada de valores negativos como texto
     setScores(newScores);
   };
 
   const handleSubmitScores = async () => {
-    const newAccumulatedScores = accumulatedScores.map((score, index) => score + scores[index]);
+    // Convierte los valores de `scores` a números, permitiendo signos negativos
+    const finalScores = scores.map(score => parseInt(score, 10) || 0);
+  
+    // Calcula los puntajes acumulados sumando los `finalScores` a los actuales
+    const newAccumulatedScores = accumulatedScores.map((score, index) => score + finalScores[index]);
     setAccumulatedScores(newAccumulatedScores);
-
+  
     try {
       const gameRef = doc(db, "games", gameId);
       await updateDoc(gameRef, {
-        rounds: arrayUnion({ round: currentRound, scores }),
+        rounds: arrayUnion({ round: currentRound, scores: finalScores }),
         accumulatedScores: newAccumulatedScores,
       });
-
+  
       if (currentRound < 7) {
         setCurrentRound(currentRound + 1);
         setScores(Array(players.length).fill(0));
@@ -37,7 +41,7 @@ const GameScores = ({ players, gameId }) => {
       console.error("Error al guardar los puntajes:", error);
     }
   };
-
+  
   const handleFinishGame = async (finalScores) => {
     const sortedPlayers = players
       .map((player, index) => ({
@@ -104,11 +108,12 @@ const GameScores = ({ players, gameId }) => {
           <li key={index}>
             {player}: 
             <input
-              type="number"
-              placeholder="Puntaje"
-              value={scores[index]}
+              type="text" // Cambia a "text" para que acepte el signo negativo sin problemas
+              placeholder="Puntuación"
+              value={scores[index] !== undefined ? scores[index] : ""}
               onChange={(e) => handleScoreChange(index, e.target.value)}
             />
+
             (Acumulado: {accumulatedScores[index]})
           </li>
         ))}
